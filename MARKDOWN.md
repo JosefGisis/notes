@@ -39,10 +39,10 @@ This file is my guide to markdown syntax. It is based on Darsaveli's Readme Mark
 ## Font Styles
 
 ```md
-*Italics*
+_Italics_
 _Also italics_
 **Bold**
-__Also bold__
+**Also bold**
 **_Bold and italics_**
 _also italics and **bold**_
 ~~Striked text~~
@@ -126,20 +126,20 @@ You can also use relative URLs if the link is to a sub url on the same page.
 Image insertion uses the format `![alt](URL 'title')`. Alt takes the place of the image if it cannot be diplayed, parenthesis contains the image source, and the title in quotes indicates the text to display when the mouse hovers over the image (can be omitted).
 
 ```md
-![extremely menacing chick](/20221106_001445.jpg 'an extremely menacing chick')
+![extremely menacing chick](/public/20221106_001445.jpg 'an extremely menacing chick')
 ```
 
-![extremely menacing chick](/20221106_001445.jpg 'an extremely menacing chick')
+![extremely menacing chick](/public/20221106_001445.jpg 'an extremely menacing chick')
 
 ### Resizing
 
 Images can be resized using the HTML syntax.
 
 ```md
-<img src="/20221106_001445.jpg" alt='a smaller image of an extremely menacing chick' width="20%" height='auto'/>
+<img src="/public/20221106_001445.jpg" alt='a smaller image of an extremely menacing chick' width="20%" height='auto'/>
 ```
 
-<img src="/20221106_001445.jpg" alt='a smaller image of an extremely menacing chick' width="20%" height='auto'/>
+<img src="/public/20221106_001445.jpg" alt='a smaller image of an extremely menacing chick' width="20%" height='auto'/>
 
 ---
 
