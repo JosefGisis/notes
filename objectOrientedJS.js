@@ -508,20 +508,21 @@ square.toString()
  * Discussion:
  *
  * JavaScript is a very dynamic language. Its dynamism allows us to do all sorts of neat and dangerous things. We can dynamically
- * construct objects, change their properties, and even change the properties of native objects! Functions, don't even accept
+ * construct objects, change their properties, and even alter the prototype of native objects! Functions, don't even accept
  * a fixed number of predefined parameters; instead, they accept a list of arguments. It is very important to use best practices
  * and the good parts of JavaScript to avoid creating a hot mess.
  *
  * The first thing that pops up when learning about object-oriented JS is the prototypical nature of the language.
- * Unlike other programming languages, that use class based object construction, JS uses prototype-based object construction.
- * That is, it copies the properties of an object to another object. Instead of a class inheritance tree, there is a chain of
- * prototypes that is used to access properties of an object.
+ * Unlike other languages that use class based object construction, JS uses prototype-based object construction.
+ * That is, objects can use its prototype's properties and methods. Instead of a class inheritance tree, there is a chain of
+ * prototypes.
+ *
  * All objects have, at some point in its prototype chain, a reference to the Object.prototype (the most basic object).
  * This is the root of the prototype chain. Furthermore, Object.prototype has a reference to null. This is the end of the
  * prototype chain.
  *
  * Another thing that is interesting is that all reference types are objects that ultimately inherit from Object, even/especially
- * functions. What makes arrays and function different from a basic object is that they have special properties and methods (for
+ * functions. What makes arrays and function different from Object is that they have special properties and methods (for
  * example the length property of an array, or the call method for functions) that define them.
  *
  * We can instantiate objects in JS in a number of ways. We can use the new keyword with a constructor function, or we can use the
@@ -529,21 +530,22 @@ square.toString()
  *
  * And this raises an interesting question: if we can create an object with a function, and all functions are objects, which further
  * need to be created with a function, then how do we create the first object?. It is a sort of chicken and egg problem.
- * I saw a possible answer that JS's engine would create the native objects in a process that is called bootstrapping.
+ * I saw a possible answer that JS's engine creates the native objects in a process that is called bootstrapping.
  * Meaning they do not need to be created with a function, so they do not run into that circular problem. Subsequent objects would
  * be created with the already created objects.
  *
  * Because of the way JS instantiates objects, how can we mimic some behavior of classes in other languages such as inheritance,
- * polymorphism, and encapsulation?
- * We can use constructor functions, prototypes, prototypical inheritance, getters/setters, and a combination of Object.preventExtensions,
+ * polymorphism, and encapsulation? We can use constructor functions, prototypes, prototypical inheritance, getters/setters,
+ * and a combination of Object.preventExtensions,
  * Object.seal, and Object.freeze.
  *
- * Some of the ways we can mimic class-based instantiation are:
- * - To mimic class based instantiation we can use constructor functions.
- * - To mimic private properties we could use getters and setters. We could also use defineProperty to further control the properties of an object.
- * - To mimic the fixed methods and properties of a class we can use Object.seal() to prevent adding or deleting properties (although this
+ * Some of the ways we can mimic class behavior in JS are:
+ * - Mimic class based instantiation by using constructor functions.
+ * - Mimic private properties by using getters and setters. We could also use defineProperty to further control the properties of an object.
+ * We can also IIFEs and closures to create private properties.
+ * - Mimic the fixed methods and properties of a class by using Object.seal() to prevent adding or deleting properties (although this
  * can be undermined by altering its prototype after it has been sealed).
- * - To mimic inheritance we could use constructor functions and prototypes. Futhermore, we could use constructor stealing to apply the
+ * - Mimic inheritance by using constructor functions and prototypes. Futhermore, we could use constructor stealing to apply the
  * constructor of the parent object to the child object and get the properties of the parent object.
  * - We can override the prototype methods of the parent object in the child object by creating a new method in the child object.
  * - We can access the parent object's methods by using the prototype of the parent object and calling the method with call or apply.
