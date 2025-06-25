@@ -2,42 +2,49 @@
 
 ### Why Redux?
 
--   Global state management for pages
--   Avoid drilling params
--   Persistent state
--   Debugging tools
--   Centralized state management for predictability and easier management
+Redux provides global state management that allows us to avoid drilling params, persist state, and create a predictable and controllable state flow.
+
+Redux is not just a large provider: it creates a separate state management system that lives outside your component tree, providing a single source of truth that can be accessed and modified in a controlled manner through actions and reducers.
+
+The Redux debugger also allows us to easily track state changes for quick debugging.
 
 ### Why not to use Redux?
 
--   Lack of directionality
--   Verbosity
--   Performance
--   Overhead
+-   Lack of directionality:
+
+    > This is arguably the benefit with large and complex applications.
+
+-   Monolithic:
+
+    > As above, this can be a benefit.
+
+-   Verbosity:
+
+    > This is not so much the case anymore with RTK.
+
 -   Complexity
--   Highly monolithic
+
 -   Does not store serializable values
 
-This is a great resource for Redux https://blog.isquaredsoftware.com/2017/05/idiomatic-redux-tao-of-redux-part-1/
-https://redux.js.org/
-Link for best redux practices
-From https://redux.js.org/faq/general
+### When to use Redux
 
--   You have large amounts of application state that are needed in many places in the app
--   The app state is updated frequently
--   The logic to update that state may be complex
--   The app has a medium or large-sized codebase, and might be worked on by many people
--   You need to see how that state is being updated over time
+-   You have large amounts of application state that are needed throughout the app.
+
+-   The app state needs to be preserved across rerenders.
+
+-   State logic is complex and should be handled outside of the component tree.
+
+-   The app has a medium or large-sized codebase is worked on by many people and/or contains many features.
+
+-   The state is complex enough such that the Redux devtools will help debug the app.
 
 ### Why Redux instead of Context
 
-We could try to do what Redux does via contexts and reducers but...
+While we could attempt to replicate Redux's functionality using contexts and reducers, there are several reasons to choose Redux. Context providers trigger rerenders for all components when state changes occur, whereas Redux only notifies subscribed components while only using context to pass the store instance.
 
--   Providers cause all state to be rerendered when a change occurs.
--   Redux on the other hand only uses context to pass along the store instance, but only notify subscribed components.
--   Redux provides tools for tracking state changes.
--   Providers need to be nested and that results in potential dependency issues and parent providers cannot access child providers.
--   Redux creates a state management system separate the rest of the app which allows to to create a monolithic state management system that is easier to understand and debug and is very flexible
+Additionally, the nested nature of context providers can lead to dependency issues, with parent providers unable to access child providers' state.
+
+Perhaps most importantly, Redux establishes a separate, monolithic state management system outside the application's component tree. This separation creates a more maintainable and flexible architecture that's easier to debug and understand, especially in larger applications.
 
 ### Why Redux Toolkit?
 
@@ -98,6 +105,7 @@ import { useSelector } from 'redux-toolkit';
 import { selectParams } from './itemsSlice';
 
 export default fuction ItemList() {
+
   const params = useSelector(() => selectParams());
   const items = useGetItemsQuery(params, { skip: !params });
 
@@ -120,3 +128,26 @@ export default fuction ItemList() {
 -   Middleware for API https://redux-toolkit.js.org/rtk-query/usage/error-handling#handling-errors-at-a-macro-level
 -   Automated re-fetching https://redux-toolkit.js.org/rtk-query/usage/polling
 -   prefetching https://redux-toolkit.js.org/rtk-query/usage/prefetching
+
+### Performance Optimization in Redux Toolkit
+
+-   **Memoize Selectors**: Use `createSelector` to avoid unnecessary recalculations and improve performance.
+-   **Avoid Large State Trees**: Keep state flat and avoid deeply nested structures to simplify updates and reduce re-renders.
+-   **Batch Actions**: Dispatch multiple actions together using libraries like `redux-batched-actions` to minimize state updates.
+-   **Use Middleware Wisely**: Avoid adding unnecessary middleware that could slow down your application.
+-   **Lazy Loading Slices**: Dynamically load slices only when needed to reduce initial load time.
+
+### Advanced RTK Query Usage
+
+-   **Custom Transform Responses**: Use the `transformResponse` option in queries to preprocess API responses before storing them.
+-   **Polling**: Implement polling for real-time updates using RTK Query's built-in polling mechanism.
+-   **Prefetching**: Use `prefetch` to load data in advance for smoother user experiences.
+-   **Error Handling**: Extend the query builder to handle errors globally and provide custom error messages.
+-   **Optimistic Updates**: Implement optimistic updates for faster UI feedback, ensuring the user sees changes immediately.
+-   **Tag Management**: Optimize invalidation tags to minimize unnecessary re-fetching of data.
+-   **Caching Strategies**: Customize caching behavior to suit your application's needs, such as setting cache lifetimes.
+
+This is a great resource for Redux https://blog.isquaredsoftware.com/2017/05/idiomatic-redux-tao-of-redux-part-1/
+https://redux.js.org/
+Link for best redux practices
+From https://redux.js.org/faq/general
