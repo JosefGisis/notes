@@ -2,152 +2,356 @@
 
 ### Why Redux?
 
-Redux provides global state management that allows us to avoid drilling params, persist state, and create a predictable and controllable state flow.
+Redux provides global state management that allows us to avoid prop drilling, maintain persistent state, and create a predictable and controllable state flow.
 
-Redux is not just a large provider: it creates a separate state management system that lives outside your component tree, providing a single source of truth that can be accessed and modified in a controlled manner through actions and reducers.
+Redux is not just a large provider: it creates a separate state management system that lives outside your component tree, providing a single source of truth that can be accessed and modified in a controlled manner through actions and reducers. This separation of concerns makes state changes more predictable and easier to debug.
 
-The Redux debugger also allows us to easily track state changes for quick debugging.
+The Redux DevTools enable comprehensive state tracking and time-travel debugging, making it easier to identify and fix state-related issues.
 
 ### Why not to use Redux?
 
--   Lack of directionality:
+-   Lack of directionality
 
-    > This is arguably the benefit with large and complex applications.
+    > In large and complex applications, this actually becomes a benefit as it enforces a predictable data flow.
 
--   Monolithic:
+-   Monolithic architecture
 
-    > As above, this can be a benefit.
+    > This centralization can be advantageous for maintaining consistency across large applications.
 
--   Verbosity:
+-   Verbosity
 
-    > This is not so much the case anymore with RTK.
+    > Redux Toolkit significantly reduces this concern.
 
--   Complexity
+-   Initial complexity
 
--   Does not store serializable values
+-   Serializable state limitation
+    > This constraint helps maintain predictable state management.
 
 ### When to use Redux
 
--   You have large amounts of application state that are needed throughout the app.
+Consider Redux when:
 
--   The app state needs to be preserved across rerenders.
-
--   State logic is complex and should be handled outside of the component tree.
-
--   The app has a medium or large-sized codebase is worked on by many people and/or contains many features.
-
--   The state is complex enough such that the Redux devtools will help debug the app.
+-   Your application has substantial state that needs to be accessed throughout the app
+-   State persistence across rerenders is important
+-   Complex state logic needs to be handled outside the component tree
+-   Your codebase is medium to large-sized with multiple developers and features
+-   You need powerful debugging tools for state management
 
 ### Why Redux instead of Context
 
-While we could attempt to replicate Redux's functionality using contexts and reducers, there are several reasons to choose Redux. Context providers trigger rerenders for all components when state changes occur, whereas Redux only notifies subscribed components while only using context to pass the store instance.
+While Context and reducers can partially replicate Redux's functionality, Redux offers several key advantages:
 
-Additionally, the nested nature of context providers can lead to dependency issues, with parent providers unable to access child providers' state.
-
-Perhaps most importantly, Redux establishes a separate, monolithic state management system outside the application's component tree. This separation creates a more maintainable and flexible architecture that's easier to debug and understand, especially in larger applications.
+-   Performance: Context triggers rerenders for all consuming components on any change, while Redux only updates subscribed components
+-   Debugging: Redux DevTools provide superior debugging capabilities
+-   Architecture: Redux creates a separate state management system that's more maintainable and flexible
+-   Scalability: Redux handles complex state interactions better than nested Context providers
+-   Middleware: Redux's middleware system enables powerful features like logging, routing, and async operations
 
 ### Why Redux Toolkit?
 
-Redux toolkit is the new and recommended way to use Redux. Reduces boilerplace and adds of bunch of nifty stuff such as:
+Redux Toolkit modernizes Redux development by reducing boilerplate and providing essential utilities:
 
--   createAsyncThunk: we would use RTKQ
--   createEntityAdapter: Very useful for normalizing data or storing normalized data.
--   createSelector: Create a memoized selector function that can avoid
--   createSlice
--   createReducer: automatically create reducer actions and uses immer under the hook
--   RTK Query See next
--   default middleware
--   action creators with immer
+-   createAsyncThunk: Simplifies async operations (though RTK Query is preferred for data fetching)
+-   createEntityAdapter: Enables efficient normalized data management
+-   createSelector: Provides memoized selector functions for optimal performance
+-   createSlice: Simplifies reducer and action creation
+-   createReducer: Enables safe state mutations via Immer
+-   Built-in middleware configuration
+-   RTK Query for data fetching and caching
 
 ### RTK best practices and suggested usage
 
--   Do not mutate state.
--   Actions should be pure!
--   Single slice a feature: If you can't it may indicate a flaw with the feature
--   Keep redux state thin!
--   Keep data validation and transformation logic in the reducer
--   Do not create clear action for state. Pass along undefined instead. Use reset where we want to set back to initial state.
--   Keep slice state flat, but use nested properties for easier manipulation.
--   Keep action and state names as specific as possible to avoid having to rename them elsewhere.
--   Immer only works within the createReducer function.
--   When dispatching an action that changes a single property in the state, only change other properties if they must necessarily change. If the other properties do not necessarily change, a separate action should be dispatched.
--   Try using addCase to react to dispatches in other slices IF the change is always necessary. If not, it will lead to confusion.
--   Only abstract a dispatch where there is other logic involved and/or the dispatch is used very frequently. Otherwise it just adds obscurity.
--   Do not use a single hook to abstract a slice (unless the slice has very little in it). If hooks are not task specific all components that use it do a lot of extra processing.
--   Keep selectors small and specific to avoid rerenders where components do not need the extra data
--   Boolean values should start with "is" so that are immediately identified
--   actions should be verbs like set, reset, increment, toggle (I find toggle to never really been useful).
--   Do not worry about comparing prev and current values, redux does that under the hood and will not cause any re-renders if they are deeply equal
--   Rely on dev tools. Check the dispatches to see the series of events.
--   middleware https://redux-toolkit.js.org/rtk-query/usage/polling
+These guidelines focus on Redux Toolkit-specific practices, assuming fundamental Redux principles are already understood.
+
+#### State Management
+
+-   **Keep State Thin**
+
+    -   Store only essential data needed for the application to function
+    -   Avoid derived state - compute it where needed
+    -   Example: Store filter criteria rather than filtered lists
+    -   This approach maintains flexibility and simplifies state management
+
+-   **Flat State Structure**
+    -   Use flat state structures with logical grouping
+    -   Nested objects should only be used when the data naturally belongs together
+    -   Example: `{ userDetails: { name, email }, userPreferences: { theme, language } }`
+
+#### Actions and Reducers
+
+-   **Pure Actions**
+
+    -   Actions should be predictable and dependent only on their payload
+    -   Handle conditional logic where the action is dispatched, not in the reducer
+
+-   **One Slice Per Feature**
+
+    -   Each feature should have its own slice
+    -   If a slice becomes too large, or it contains unrelated state, it may indicate a flaw in the features design.
+
+-   **Specific Action Names**
+
+    -   Use clear, specific action names: `setUserProfile` instead of `setData`
+    -   Verb-based naming: set, update, remove, reset
+    -   Boolean states should start with 'is': isLoading, isActive
+    -   Example action names:
+
+    ```typescript
+    // Good
+    setUserProfile
+    updateCartItemQuantity
+    removeNotification
+
+    // Bad
+    setData
+    updateState
+    changeValue
+    ```
+
+#### Data Handling
+
+-   **Validation in Reducers**
+
+    -   Keep data validation and transformation in reducers
+    -   Ensures consistent data format throughout the application
+    -   Reduces duplicate validation logic in components
+
+-   **State Reset Patterns**
+    -   Avoid dedicated "clear" actions
+    -   Use undefined/null for clearing specific values
+    -   Use reset actions for returning to initial state
+
+#### Cross-Slice Communication
+
+-   **Using addCase Wisely**
+    -   Only react to other slices' actions when the relationship is clear and necessary
+    -   Document cross-slice dependencies
+    -   Consider splitting the feature if there are too many cross-slice dependencies
+
+#### Performance Optimization
+
+-   **Selector Usage**
+
+    -   Keep selectors small and focused
+    -   Use createSelector for computed values
+    -   Avoid selecting unnecessary data
+
+-   **State Updates**
+    -   Redux performs shallow equality checks automatically
+    -   No need for manual previous/current value comparisons
+    -   Use immer's draft syntax within createReducer
+
+#### Component Integration
+
+-   **Custom Hooks**
+
+    -   Create purpose-specific hooks instead of generic slice hooks
+    -   Example: `useUserProfile()` instead of `useUserSlice()`
+    -   Keep hooks focused on specific tasks to prevent unnecessary rerenders
+
+-   **Dispatch Abstraction**
+    -   Only abstract dispatches when there's additional logic
+    -   Keep simple dispatches inline for better code clarity
+    -   Use clear naming for dispatch functions: `dispatchUpdateUserProfile`
 
 ### Why Redux Toolkit Query?
 
-Redux Toolkit Query is a data fetching and caching tools built on top of createSlice and createAsyncThunk.
+Redux Toolkit Query is a data fetching and caching tools built on top of createSlice and createAsyncThunk. Some of the benefits of using RTKQ include:
 
--   RTKQ abstracts data fetching
--   RTKQ handles data caching
--   RTKQ built on top of createSlice and createAsyncThunk so we can respond to queries and mutations within a slice and alter fetched data from the queries/mutations
--   Automatically creates loading/fetching states without having to use createAsyncThunk
--   Automatically creates queries and mutations which provide data and fetching states.
--   Provides a great deal of flexibility in how to manage, cache, and request data.
--   Can store normalized data
+-   RTKQ abstracts data fetching.
 
-### RTKQ best practices and suggested usage.
+-   RTKQ handles data caching.
 
--   Split up the API into multiple files. An api slice per feature is a good way to go about it.
--   Depend of the data provided by queries. Because requests are deduplicated, we can get data by using getQuery everywhere we need it.
--   You oftentimes do not need to use lazy queries. Lazy queries are often used because there is a perception that without the necessary parameters being available just yet we cannot use a query as React expects all hooks to be called unconditionally. However, you can just provide the params at set skip to false if they are not present. Once the param/s arrive the query will update.
+-   RTKQ built on top of createSlice and createAsyncThunk so we can respond to queries and mutations within a slice and alter fetched data from the queries/mutations.
 
-```jsx
-import { useGetItemsQuery } from './itemsApi';
-import { useSelector } from 'redux-toolkit';
-import { selectParams } from './itemsSlice';
+-   RTKQ Automatically creates loading/fetching states without having to use createAsyncThunk.
 
-export default fuction ItemList() {
+-   RTKQ Automatically creates queries and mutations which provide data and fetching states.
 
-  const params = useSelector(() => selectParams());
-  const items = useGetItemsQuery(params, { skip: !params });
+-   RTKQ Provides a great deal of flexibility in how to manage, cache, and request data.
 
-  //... the rest of your logic
-}
-```
+### RTKQ best practices and suggested usage
 
--   Because we rely on the data provided by queries we can use optimistic updates to instantly update the UI
-    We do not need to invalidate tags with optimistic updates
--   debouncing with optimistic updates.
--   Where to use lazy queries
--   pagination
--   Setting state as a side effect of queries and mutations
--   Normalized data
--   Optimized invalidator tags
--   Abstracting queries
--   Caching lazy queries and mutations
--   Matchers
--   Extend the query builder to suit custom needs and transform errors.
+#### API Organization
+
+-   **Feature-Based API Slices**
+    -   Split API definitions by feature domain
+    -   Keep endpoints grouped by related functionality
+    -   Example structure:
+        ```typescript
+        // userApi.ts - User-related endpoints
+        // orderApi.ts - Order management endpoints
+        // productApi.ts - Product catalog endpoints
+        ```
+
+#### Query Patterns
+
+-   **Standard vs Lazy Queries**
+
+    -   Use standard queries with `skip` option instead of lazy queries when possible:
+
+        ```typescript
+        // Preferred approach
+        const { data } = useGetItemsQuery(params, { skip: !params.id })
+
+        // Instead of lazy queries
+        const [getItems, { data }] = useLazyGetItemsQuery()
+        ```
+
+    -   Reserve lazy queries for:
+        -   User-triggered actions
+        -   Complex query chains
+        -   Manual retry scenarios
+
+-   **Optimistic Updates**
+    -   Implement optimistic updates to improve perceived performance
+    -   Update cache immediately, then revert if mutation fails
+    ```typescript
+    updatePost: build.mutation({
+    	query: ({ id, ...patch }) => ({
+    		url: `posts/${id}`,
+    		method: 'PATCH',
+    		body: patch,
+    	}),
+    	onQueryStarted: async ({ id, ...patch }, { dispatch, queryFulfilled }) => {
+    		const patchResult = dispatch(
+    			api.util.updateQueryData('getPost', id, (draft) => {
+    				Object.assign(draft, patch)
+    			})
+    		)
+    		try {
+    			await queryFulfilled
+    		} catch {
+    			patchResult.undo()
+    		}
+    	},
+    })
+    ```
+
+#### Cache Management
+
+-   **Tag-Based Invalidation**
+
+    -   Design tags around entities and collections
+    -   Use specific IDs for precise invalidation
+
+    ```typescript
+    {
+      tagTypes: ['Post', 'User'],
+      endpoints: {
+        getPost: build.query({
+          providesTags: (result, error, id) => [{ type: 'Post', id }]
+        }),
+        updatePost: build.mutation({
+          invalidatesTags: (result, error, { id }) => [{ type: 'Post', id }]
+        })
+      }
+    }
+    ```
+
+-   **Pagination Handling**
+    -   Store page parameters in URL or component state
+    -   Use cursor-based pagination when possible
+    -   Implement infinite scrolling with `merge` concat function
+    ```typescript
+    getPosts: build.query({
+    	query: ({ page, limit }) => `posts?page=${page}&limit=${limit}`,
+    	serializeQueryArgs: ({ endpointName }) => endpointName,
+    	merge: (currentCache, newItems) => {
+    		currentCache.items.push(...newItems.items)
+    	},
+    	forceRefetch: ({ currentArg, previousArg }) => currentArg?.page !== previousArg?.page,
+    })
+    ```
+
+#### Performance Optimization
+
+-   **Selective Data Transformation**
+
+    -   Transform API responses close to the source
+    -   Use `transformResponse` for consistent data shape
+
+    ```typescript
+    getUsers: build.query({
+    	query: () => 'users',
+    	transformResponse: (response) => ({
+    		users: response.data.map(normalizeUser),
+    		total: response.meta.total,
+    	}),
+    })
+    ```
+
+-   **Request Debouncing**
+    -   Implement debouncing for search queries
+    -   Use polling for real-time updates
+    ```typescript
+    useSearchQuery(searchTerm, {
+    	skip: !searchTerm,
+    	pollingInterval: shouldPoll ? 3000 : 0,
+    	debounce: 500,
+    })
+    ```
+
+#### Error Handling
+
+-   **Global Error Management**
+    -   Set up global error handlers in API configuration
+    -   Transform error responses consistently
+    ```typescript
+    createApi({
+    	baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+    	baseQueryWithReauth: async (args, api, extraOptions) => {
+    		let result = await baseQuery(args, api, extraOptions)
+    		if (result.error?.status === 401) {
+    			// Handle authentication error
+    		}
+    		return result
+    	},
+    })
+    ```
+
+#### Advanced Features
+
+-   **Custom Hooks**
+
+    -   Create wrapper hooks for common query patterns
+    -   Combine multiple RTKQ hooks when needed
+
+    ```typescript
+    export function useUserData(userId) {
+    	const { data: user } = useGetUserQuery(userId)
+    	const { data: preferences } = useGetUserPreferencesQuery(userId, {
+    		skip: !user,
+    	})
+    	return { user, preferences }
+    }
+    ```
+
+-   **Prefetching Strategies**
+
+    -   Implement intelligent prefetching
+    -   Use hover-based prefetching for UI elements
+
+    ```typescript
+    function UserList({ users }) {
+    	const dispatch = useDispatch()
+
+    	const prefetchUser = useCallback(
+    		(userId) => {
+    			dispatch(api.util.prefetch('getUser', userId, { force: false }))
+    		},
+    		[dispatch]
+    	)
+
+    	return users.map((user) => <div onMouseEnter={() => prefetchUser(user.id)}>{user.name}</div>)
+    }
+    ```
+
+### Further Reading
+
+-   For a good understanding of the principles of Redux https://blog.isquaredsoftware.com/2017/05/idiomatic-redux-tao-of-redux-part-1/
+
 -   Middleware for API https://redux-toolkit.js.org/rtk-query/usage/error-handling#handling-errors-at-a-macro-level
 -   Automated re-fetching https://redux-toolkit.js.org/rtk-query/usage/polling
 -   prefetching https://redux-toolkit.js.org/rtk-query/usage/prefetching
-
-### Performance Optimization in Redux Toolkit
-
--   **Memoize Selectors**: Use `createSelector` to avoid unnecessary recalculations and improve performance.
--   **Avoid Large State Trees**: Keep state flat and avoid deeply nested structures to simplify updates and reduce re-renders.
--   **Batch Actions**: Dispatch multiple actions together using libraries like `redux-batched-actions` to minimize state updates.
--   **Use Middleware Wisely**: Avoid adding unnecessary middleware that could slow down your application.
--   **Lazy Loading Slices**: Dynamically load slices only when needed to reduce initial load time.
-
-### Advanced RTK Query Usage
-
--   **Custom Transform Responses**: Use the `transformResponse` option in queries to preprocess API responses before storing them.
--   **Polling**: Implement polling for real-time updates using RTK Query's built-in polling mechanism.
--   **Prefetching**: Use `prefetch` to load data in advance for smoother user experiences.
--   **Error Handling**: Extend the query builder to handle errors globally and provide custom error messages.
--   **Optimistic Updates**: Implement optimistic updates for faster UI feedback, ensuring the user sees changes immediately.
--   **Tag Management**: Optimize invalidation tags to minimize unnecessary re-fetching of data.
--   **Caching Strategies**: Customize caching behavior to suit your application's needs, such as setting cache lifetimes.
-
-This is a great resource for Redux https://blog.isquaredsoftware.com/2017/05/idiomatic-redux-tao-of-redux-part-1/
-https://redux.js.org/
-Link for best redux practices
-From https://redux.js.org/faq/general
+-   middleware https://redux-toolkit.js.org/rtk-query/usage/polling
